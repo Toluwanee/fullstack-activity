@@ -3,7 +3,12 @@ import sql from "./db.js";
 import cors from "cors"
 
  const app = express();
-
+ app.use(
+   cors({
+     origin: ["http://localhost:5173"],
+   })
+ );
+ 
  const data = [
    {"id": "1",
    "task": "Take a bath",
@@ -27,9 +32,11 @@ import cors from "cors"
     res.send("Hello")
  })
 
- app.get("/app/todo", function (req, res){
+ app.get("/api/todo", function (req, res){
    res.json(data)
 })
+
+
 
  app.listen(5000, () => {
     console.log("server is running on port 5173")
