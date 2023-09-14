@@ -3,11 +3,7 @@ import sql from "./db.js";
 import cors from "cors"
 
  const app = express();
- app.use(
-   cors({
-     origin: ["http://localhost:5173"],
-   })
- );
+ 
  
  const data = [
    {"id": "1",
@@ -28,17 +24,61 @@ import cors from "cors"
    },
    ]
 
+
  app.get("/", function (req, res){
     res.send("Hello")
  })
 
- app.get("/api/todo", function (req, res){
-   res.json(data)
+ app.use(
+  cors({
+    origin: ["http://localhost:5173"],
+  })
+);
+
+ app.get("/api/todos", async (req, res) =>{
+   const todos = await sql `select * from todos`
+  //  console.log(todos)
+   if (todos) 
+   {
+    res.status(200).send(todos)
+   } else{
+    res.status(404).send("Error, leave")
+   }
+   res.status(todos)
+})
+
+app.post("/api/todos2", async(req, res) => {
+  const todos2 = await sql `INSERT INTO todos (task, is_completed) VALUES ('Eat jollof rice', false)`
+  console.log(todos2)
+  if (todos2){
+    res.status(201).send("Successfully inserteed, You can return ")
+  }
+  else{
+    res.status(404).send("Error 404")
+  }
+  
 })
 
 
+app.delete("/api/todos2/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deletedTodo = await sql`DELETE FROM todos WHERE id = ${id} RETURNING *`;
+    
+    if (deletedTodo && deletedTodo.length > 0) {
+      res.status(200).json(deletedTodo[0]);
+    } else {
+      res.status(404).send("Todo not found");
+    }
+  } catch (error) {
+    console.error("Error deleting todo:", error);
+    res.status(500).send("Internal server error");
+  }
+});
+
 
  app.listen(5000, () => {
-    console.log("server is running on port 5173")
+    console.log("server is running on port 5000")
  });
  
